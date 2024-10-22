@@ -23,8 +23,27 @@ jobs:
       - name: Run tests with Gradle
         run: ./gradlew test
 
-      - name: Archive build artifacts
-        uses: actions/upload-artifact@v3
+      - name: Get version from build.gradle
+        id: get_version
+        run: |
+          VERSION=$(grep 'version =' build.gradle | sed -E 's/.*version = '\''([0-9]+\.[0-9]+).*$/\1/')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
         with:
-          name: shadow-artifact
-          path: build/libs/*.jar
+          tag_name: ${{ env.VERSION }}  # Uses the version extracted from build.gradle
+          release_name: Release ${{ env.VERSION }}  # Release name
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload JAR to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}  # Uses the version extracted from build.gradle
+          files: build/libs/*.jar  # Path to the built JAR file
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
