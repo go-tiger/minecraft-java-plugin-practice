@@ -1,0 +1,5 @@
+name: pluginPractice
+version: '1.0-SNAPSHOT'
+main: dev.gotiger.pluginPractice.PluginPractice
+api-version: '1.20'
+load: STARTUP
